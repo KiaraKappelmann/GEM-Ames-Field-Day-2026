@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>GEM Ames Field Day 2026</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --green: #205b36;
+      --green-dark: #17472a;
+      --green-light: #eaf2ec;
+      --paper: #ffffff;
+      --bg: #f4f6f1;
+      --text: #202421;
+      --muted: #687068;
+      --border: #d9e0d8;
+      --gold: #b48b21;
+      --walkway: #efb1c8;
+      --border-row: #c9dbea;
+    }
+
+    html { background: var(--bg); }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-text-size-adjust: 100%;
+    }
+
+    button, textarea { font: inherit; }
+
+    .app {
+      max-width: 700px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: var(--paper);
+      box-shadow: 0 0 20px rgba(0,0,0,.04);
+    }
+
+    header {
+      background: var(--green);
+      color: white;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        20px
+        18px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      opacity: .9;
+      font-size: 14px;
+    }
+
+    main { padding: 20px; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    h2 {
+      color: var(--green);
+      margin-top: 0;
+    }
+
+    .welcome-box { padding: 12px 0 8px; }
+
+    .welcome-box h2,
+    .finish-box h2 {
+      font-size: 29px;
+      line-height: 1.2;
+    }
+
+    .welcome-box p,
+    .finish-box p {
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .button {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 15px 18px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    .primary { background: var(--green); color: white; }
+    .secondary { background: #e8ece7; color: var(--green); }
+    .outline {
+      background: white;
+      color: var(--green);
+      border: 1px solid #b9c4b8;
+    }
+
+    .status {
+      background: var(--green-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      color: var(--green-dark);
+      margin-bottom: 16px;
+      line-height: 1.4;
+      font-size: 14px;
+    }
+
+    .top-links {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .top-links button {
+      flex: 1;
+      background: white;
+      border: 1px solid #cad1c8;
+      border-radius: 9px;
+      padding: 10px 8px;
+      font-weight: 700;
+      color: var(--green);
+      cursor: pointer;
+    }
+
+    .tour-label {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .progress-container {
+      width: 100%;
+      height: 8px;
+      background: #e4e4e4;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #6c8e55;
+      width: 0%;
+      transition: width .2s;
+    }
+
+    .entry-badge {
+      display: inline-block;
+      background: var(--green-light);
+      color: var(--green-dark);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .line-name {
+      font-size: 31px;
+      line-height: 1.12;
+      margin: 4px 0 8px;
+      color: var(--green);
+      overflow-wrap: anywhere;
+    }
+
+    .coords {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-chip {
+      display: inline-block;
+      background: #f0f1ed;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 14px;
+      margin-bottom: 18px;
+      font-weight: 700;
+    }
+
+    .info-card {
+      background: #f8f9f6;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .info-row {
+      margin-bottom: 15px;
+    }
+
+    .info-row:last-child { margin-bottom: 0; }
+
+    .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      color: #667267;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .value {
+      font-size: 16px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .agronomic-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px;
+    }
+
+    .metric .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .metric .metric-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .favorite-button,
+    .question-button {
+      width: 100%;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .favorite-button {
+      background: white;
+      border: 2px solid #d5d9d3;
+    }
+
+    .favorite-button.selected {
+      border-color: var(--gold);
+      background: #fff8df;
+    }
+
+    .question-button {
+      background: white;
+      border: 1px solid #b9c4b8;
+      color: var(--green);
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 130px;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      resize: vertical;
+    }
+
+    .saved-message {
+      font-size: 13px;
+      color: #667267;
+      margin-top: 5px;
+      min-height: 18px;
+    }
+
+    .navigation {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .navigation button {
+      flex: 1;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 8px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .nav-prev { background: #e8ece7; color: var(--green); }
+    .nav-next { background: var(--green); color: white; }
+    .nav-prev:disabled { opacity: .35; cursor: default; }
+
+    .transition-box {
+      text-align: center;
+      padding: 22px 4px;
+    }
+
+    .transition-arrow {
+      font-size: 52px;
+      margin: 8px 0;
+    }
+
+    .transition-next {
+      background: var(--green-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      line-height: 1.5;
+    }
+
+    .finish-box {
+      text-align: center;
+      padding: 28px 0 10px;
+    }
+
+    .export-box {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0 24px;
+    }
+
+    .export-box p {
+      margin-top: 0;
+      line-height: 1.45;
+      color: #4b574d;
+      font-size: 14px;
+    }
+
+    .notes-entry {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      background: #fafbf9;
+    }
+
+    .notes-entry h3 {
+      margin: 0 0 5px;
+      color: var(--green);
+      overflow-wrap: anywhere;
+    }
+
+    .notes-entry .small {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .notes-entry .note-text {
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+
+    .notes-entry button {
+      margin-top: 12px;
+      background: white;
+      border: 1px solid #c8d0c7;
+      border-radius: 8px;
+      padding: 9px 11px;
+      color: var(--green);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .empty-notes {
+      padding: 30px 10px;
+      text-align: center;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* FIELD MAP */
+    .map-instructions {
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .field-map-wrap {
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .field-map {
+      min-width: 900px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: white;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 70px repeat(28, 1fr);
+      min-height: 42px;
+      align-items: stretch;
+    }
+
+    .map-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      border-right: 1px solid var(--border);
+      padding: 4px;
+      background: #f6f7f4;
+      position: sticky;
+      left: 0;
+      z-index: 3;
+    }
+
+    .map-cell {
+      border-right: 1px solid #e7ebe5;
+      border-bottom: 1px solid #e7ebe5;
+      min-width: 29px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      cursor: pointer;
+      position: relative;
+      background: #edf5e8;
+      color: #33523b;
+    }
+
+    .map-cell:hover { filter: brightness(.97); }
+
+    .map-cell.current {
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      outline: 3px solid #f0c94d;
+      outline-offset: -3px;
+      z-index: 2;
+    }
+
+    .map-cell.saved::after {
+      content: "★";
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      font-size: 8px;
+      color: var(--gold);
+    }
+
+    .walkway-row {
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      min-height: 28px;
+    }
+
+    .walkway {
+      background: var(--walkway);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b4352;
+      letter-spacing: .3px;
+    }
+
+    .map-pass-header {
+      display: grid;
+      grid-template-columns: 70px repeat(28, 1fr);
+      min-width: 900px;
+      border-bottom: 1px solid var(--border);
+      background: #f5f7f4;
+    }
+
+    .map-pass-header div {
+      text-align: center;
+      padding: 6px 0;
+      font-size: 9px;
+      color: var(--muted);
+      border-right: 1px solid #e7ebe5;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      display: inline-block;
+      vertical-align: -2px;
+      margin-right: 4px;
+      border: 1px solid #c9d0c8;
+    }
+
+
+    .resource-box {
+      margin-top: 26px;
+      padding: 18px;
+      background: #f7f9f6;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    .resource-box h3 {
+      color: var(--green);
+      margin: 0 0 8px;
+      font-size: 19px;
+    }
+
+    .resource-box p {
+      margin: 0 0 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--muted);
+    }
+
+    .resource-box a {
+      display: block;
+      padding: 10px 0;
+      color: var(--green);
+      font-weight: 700;
+      text-decoration: none;
+      border-top: 1px solid #e1e6df;
+    }
+
+    .resource-box a:first-of-type { border-top: 0; }
+
+    .disclaimer {
+      max-width: 720px;
+      margin: 8px auto 0;
+      line-height: 1.5;
+      font-size: 11px;
+    }
+
+    .disclaimer a { color: var(--green); }
+
+    footer {
+      text-align: center;
+      padding: 24px 15px calc(24px + env(safe-area-inset-bottom));
+      color: #777;
+      font-size: 12px;
+    }
+
+    .loading {
+      padding: 40px 10px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .search-box {
+      margin: 18px 0;
+      padding: 16px;
+      background: #f7f9f6;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .search-row { display: flex; gap: 8px; }
+    .search-row input {
+      flex: 1; min-width: 0; padding: 12px; font: inherit;
+      border: 1px solid #b9c4b8; border-radius: 9px;
+    }
+    .search-row button {
+      border: none; border-radius: 9px; padding: 10px 14px;
+      background: var(--green); color: white; font-weight: 700; cursor: pointer;
+    }
+    .search-results { margin-top: 8px; }
+    .search-result {
+      width: 100%; text-align: left; background: white; color: var(--green);
+      border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      margin-top: 6px; cursor: pointer; font-weight: 700;
+    }
+    .filter-row { display: flex; gap: 8px; margin: 0 0 16px; }
+    .filter-row button {
+      flex: 1; padding: 10px; border-radius: 9px; border: 1px solid #b9c4b8;
+      background: white; color: var(--green); font-weight: 700; cursor: pointer;
+    }
+    .filter-row button.active { background: var(--green); color: white; }
+    .summary-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:18px 0; }
+    .summary-card { background:#f7f9f6; border:1px solid var(--border); border-radius:10px; padding:14px; }
+    .summary-number { font-size:25px; font-weight:700; color:var(--green); }
+    .summary-label { font-size:12px; color:var(--muted); margin-top:3px; }
+    .map-cell.favorite::after { content:"★"; position:absolute; top:1px; right:1px; font-size:8px; color:var(--gold); }
+    .map-cell.noted::before { content:"•"; position:absolute; bottom:-2px; left:2px; font-size:16px; font-weight:700; color:#4b6f91; }
+
+    .error-box {
+      background: #fff4f4;
+      border: 1px solid #e4b7b7;
+      border-radius: 12px;
+      padding: 14px;
+      color: #7e2b2b;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 500px) {
+      main { padding: 17px; }
+      .line-name { font-size: 28px; }
+      .welcome-box h2, .finish-box h2 { font-size: 27px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+
+  <header>
+    <h1>GEM Ames Field Day 2026</h1>
+    <p>Interactive Field Guide</p>
+  </header>
+
+  <main>
+
+    <!-- WELCOME -->
+    <section id="welcomeScreen" class="screen active">
+      <div class="welcome-box">
+        <h2>Welcome to the 2026 GEM Ames Field Day!</h2>
+
+        <p style="font-size:1.12em; font-weight:700; color:#215d38;">We’re glad you’re here.</p>
+
+        <p>
+          Use this guide as you walk through the demonstration plots.
+          Learn more about each entry, record your own observations,
+          and save lines that interest you.
+        </p>
+
+        <p>
+          Your notes are stored on this device and are not submitted
+          to the field day organizers.
+        </p>
+
+        <div class="status">
+          <b>Tour starting point:</b> Range 2, Pass 28.
+          Follow the signs and use <b>Next Entry</b> to move through the field in walking order.
+        </div>
+
+        <div id="dataStatus" class="status">Loading the field-day entry list…</div>
+
+        <button id="startButton" class="button primary" onclick="startTour()" disabled>
+          Start Field Tour
+        </button>
+
+        <button id="mapButtonHome" class="button secondary" onclick="showMap()" disabled>
+          View Field Map
+        </button>
+
+        <div class="search-box">
+          <div class="label">Find an Entry</div>
+          <p style="margin:5px 0 10px; font-size:14px; color:#687068;">Search by entry number, line name, or pedigree.</p>
+          <div class="search-row">
+            <input id="entrySearchHome" type="search" placeholder="e.g., 24 or GEMN-0144" oninput="searchEntries('entrySearchHome','searchResultsHome')" onkeydown="if(event.key==='Enter') searchEntries('entrySearchHome','searchResultsHome',true)">
+            <button onclick="searchEntries('entrySearchHome','searchResultsHome',true)">Find</button>
+          </div>
+          <div id="searchResultsHome" class="search-results"></div>
+        </div>
+
+        <button class="button secondary" onclick="showNotes()">
+          View My Notes
+        </button>
+
+        <button class="button outline" onclick="generalQuestion()">
+          ✉ General Questions / Contact Us
+        </button>
+
+        <div class="resource-box">
+          <h3>Official GEM Resources</h3>
+          <p>For official GEM information, released-line resources, research reports, presentations, and publications, visit USDA Agricultural Research Service resources:</p>
+          <a href="https://www.ars.usda.gov/germplasm-enhancement-of-maize/" target="_blank" rel="noopener">About the GEM Project ↗</a>
+          <a href="https://www.ars.usda.gov/germplasm-enhancement-of-maize/germplasm-development/" target="_blank" rel="noopener">GEM Germplasm & Released Lines ↗</a>
+          <a href="https://www.ars.usda.gov/germplasm-enhancement-of-maize/reports-presentations-etc/" target="_blank" rel="noopener">GEM Reports, Presentations & Publications ↗</a>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- TOUR -->
+    <section id="tourScreen" class="screen">
+
+      <div class="top-links">
+        <button onclick="showWelcome()">Home</button>
+        <button onclick="showMap()">Field Map</button>
+        <button onclick="showNotes()">My Notes</button>
+      </div>
+
+      <div class="search-row" style="margin-bottom:16px;">
+        <input id="entrySearchTour" type="search" placeholder="Jump to entry or line…" onkeydown="if(event.key==='Enter') searchEntries('entrySearchTour','searchResultsTour',true)">
+        <button onclick="searchEntries('entrySearchTour','searchResultsTour',true)">Find</button>
+      </div>
+      <div id="searchResultsTour" class="search-results" style="margin-bottom:10px;"></div>
+
+      <div id="tourLabel" class="tour-label"></div>
+
+      <div class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <div id="entryBadge" class="entry-badge"></div>
+
+      <h2 id="lineName" class="line-name"></h2>
+
+      <div id="coords" class="coords"></div>
+      <div id="sectionChip" class="section-chip" style="display:none;"></div>
+
+      <div id="infoCard" class="info-card"></div>
+
+      <button id="favoriteButton" class="favorite-button" onclick="toggleFavorite()">
+        ☆ Save as Favorite
+      </button>
+
+      <button class="question-button" onclick="askQuestion()">
+        ✉ Ask a Question About This Entry
+      </button>
+
+      <div class="label">My Notes</div>
+
+      <textarea
+        id="noteBox"
+        placeholder="Record your observations about this entry..."
+        oninput="saveCurrentNote()"></textarea>
+
+      <div id="savedMessage" class="saved-message"></div>
+
+      <div class="navigation">
+        <button id="previousButton" class="nav-prev" onclick="previousStop()">
+          ← Previous
+        </button>
+
+        <button id="nextButton" class="nav-next" onclick="nextStop()">
+          Next Entry →
+        </button>
+      </div>
+    </section>
+
+
+    <!-- RANGE TRANSITION -->
+    <section id="transitionScreen" class="screen">
+      <div class="transition-box">
+        <div class="entry-badge">Walking Direction</div>
+        <h2 id="transitionTitle"></h2>
+        <div class="transition-arrow">↕</div>
+
+        <div id="transitionText" class="transition-next"></div>
+
+        <button class="button primary" onclick="continueAfterTransition()">
+          Continue Tour →
+        </button>
+
+        <button class="button secondary" onclick="returnToPreviousEntry()">
+          ← Return to Previous Entry
+        </button>
+
+        <button class="button outline" onclick="showMap()">
+          View Field Map
+        </button>
+      </div>
+    </section>
+
+
+    <!-- FINISH -->
+    <section id="finishScreen" class="screen">
+      <div class="finish-box">
+        <h2>You've reached the end of the field tour.</h2>
+
+        <p>
+          Review your saved lines and field notes before you leave.
+          You can download a copy or email a summary to yourself.
+        </p>
+
+        <div id="finishSummary" class="summary-grid"></div>
+
+        <button class="button primary" onclick="showNotes()">
+          View My Field Notes
+        </button>
+
+        <button class="button secondary" onclick="returnToLastEntry()">
+          ← Return to Last Entry
+        </button>
+
+        <button class="button outline" onclick="showMap()">
+          View Field Map
+        </button>
+      </div>
+    </section>
+
+
+    <!-- NOTES -->
+    <section id="notesScreen" class="screen">
+
+      <div class="top-links">
+        <button onclick="showWelcome()">Home</button>
+        <button onclick="showMap()">Field Map</button>
+        <button onclick="returnToTour()">Return to Tour</button>
+      </div>
+
+      <h2>My Field Notes</h2>
+
+      <div class="filter-row">
+        <button id="filterAll" class="active" onclick="setNotesFilter('all')">All Saved</button>
+        <button id="filterFavorites" onclick="setNotesFilter('favorites')">★ Favorites</button>
+        <button id="filterNotes" onclick="setNotesFilter('notes')">Notes Only</button>
+      </div>
+
+      <div class="export-box">
+        <p>
+          Your notes are stored only on this device.
+          Download or email a copy if you'd like to keep them after the field day.
+        </p>
+
+        <button class="button primary" onclick="downloadCSV()">
+          Download My Notes (.csv)
+        </button>
+
+        <button class="button outline" onclick="emailNotes()">
+          Email My Notes
+        </button>
+      </div>
+
+      <div id="notesList"></div>
+    </section>
+
+
+    <!-- MAP -->
+    <section id="mapScreen" class="screen">
+
+      <div class="top-links">
+        <button onclick="showWelcome()">Home</button>
+        <button onclick="returnToTour()">Return to Tour</button>
+        <button onclick="showNotes()">My Notes</button>
+      </div>
+
+      <h2>Field Map</h2>
+
+      <p class="map-instructions">
+        Scroll sideways to see all 28 passes. Tap any plot to jump to that entry.
+        The highlighted plot is your current tour location. A star marks favorites and a dot marks written notes.
+      </p>
+
+      <div class="field-map-wrap">
+        <div id="fieldMap" class="field-map"></div>
+      </div>
+
+      <div class="map-legend">
+        <span><span class="legend-swatch" style="background:#edf5e8;"></span>Demo plot</span>
+        <span><span class="legend-swatch" style="background:#205b36;"></span>Current entry</span>
+        <span><span class="legend-swatch" style="background:#efb1c8;"></span>Walkway</span>
+        <span>★ Favorite</span>
+        <span>• Written note</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <strong>2026 Field Guide Prototype</strong>
+    <div class="disclaimer">
+      This independently developed field guide is provided for informational purposes and is not an official USDA website or USDA digital product. The U.S. Department of Agriculture and USDA Agricultural Research Service do not operate or maintain this website. Official GEM information and resources are available through the
+      <a href="https://www.ars.usda.gov/germplasm-enhancement-of-maize/" target="_blank" rel="noopener">USDA Agricultural Research Service</a>.
+    </div>
+  </footer>
+</div>
+
+
+<script>
+  const ORGANIZER_EMAIL = "kiarak@iastate.edu";
+  const DATA_FILE = "field-day-data.csv";
+
+  let entries = [];
+  let tourEntries = [];
+  let currentIndex = 0;
+  let pendingTransitionIndex = null;
+  let notesFilter = "all";
+
+  /*
+    The walking route follows the physical field:
+      Range 2: Pass 28 → 1
+      Range 4: Pass 1 → 28
+      Range 5: Pass 28 → 1
+      Range 7: Pass 1 → 28
+  */
+  const routeDirections = {
+    2: "desc",
+    4: "asc",
+    5: "desc",
+    7: "asc"
+  };
+
+  window.addEventListener("DOMContentLoaded", loadData);
+
+
+  async function loadData() {
+    try {
+      let csvText = "";
+      let loadedFromCache = false;
+      try {
+        const response = await fetch(DATA_FILE);
+        if (!response.ok) throw new Error("Could not load " + DATA_FILE);
+        csvText = await response.text();
+        localStorage.setItem("gemFieldDayData2026", csvText);
+      } catch (networkError) {
+        csvText = localStorage.getItem("gemFieldDayData2026") || "";
+        if (!csvText) throw networkError;
+        loadedFromCache = true;
+      }
+      entries = parseCSV(csvText).map(cleanEntry).filter(e => e.Entry !== "");
+
+      if (entries.length === 0) {
+        throw new Error("The CSV loaded, but no entries were found.");
+      }
+
+      buildTourOrder();
+
+      document.getElementById("dataStatus").textContent =
+        entries.length + " field-day entries loaded. The guide is ready." +
+        (loadedFromCache ? " Using the saved offline copy on this device." : "");
+
+      document.getElementById("startButton").disabled = false;
+      document.getElementById("mapButtonHome").disabled = false;
+
+      buildFieldMap();
+    } catch (error) {
+      document.getElementById("dataStatus").innerHTML =
+        "<div class='error-box'>" +
+        "The field-day entry list could not be loaded. Make sure <b>" +
+        escapeHTML(DATA_FILE) +
+        "</b> is uploaded to the same GitHub folder as <b>index.html</b>." +
+        "</div>";
+
+      console.error(error);
+    }
+  }
+
+
+  function parseCSV(text) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let inQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+      const char = text[i];
+      const next = text[i + 1];
+
+      if (char === '"') {
+        if (inQuotes && next === '"') {
+          field += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === "," && !inQuotes) {
+        row.push(field);
+        field = "";
+      } else if ((char === "\n" || char === "\r") && !inQuotes) {
+        if (char === "\r" && next === "\n") i++;
+
+        row.push(field);
+
+        if (row.some(cell => cell !== "")) {
+          rows.push(row);
+        }
+
+        row = [];
+        field = "";
+      } else {
+        field += char;
+      }
+    }
+
+    if (field !== "" || row.length > 0) {
+      row.push(field);
+      rows.push(row);
+    }
+
+    if (rows.length < 2) return [];
+
+    const headers = rows[0].map(h => h.trim());
+
+    return rows.slice(1).map(values => {
+      const obj = {};
+      headers.forEach((header, i) => {
+        obj[header] = (values[i] ?? "").trim();
+      });
+      return obj;
+    });
+  }
+
+
+  function cleanEntry(raw) {
+    const result = {};
+
+    Object.keys(raw).forEach(key => {
+      const cleanKey = key.trim();
+      let value = raw[key];
+
+      if (value === undefined || value === null) value = "";
+
+      value = String(value).trim();
+
+      if (value.toLowerCase() === "nan") value = "";
+
+      result[cleanKey] = value;
+    });
+
+    return result;
+  }
+
+
+  function buildTourOrder() {
+    const ranges = [2, 4, 5, 7];
+    tourEntries = [];
+
+    ranges.forEach(range => {
+      const group = entries
+        .filter(e => Number(e.Range) === range)
+        .sort((a, b) => Number(a.Pass) - Number(b.Pass));
+
+      if (routeDirections[range] === "desc") {
+        group.reverse();
+      }
+
+      tourEntries.push(...group);
+    });
+  }
+
+
+  function hideAllScreens() {
+    document.querySelectorAll(".screen")
+      .forEach(screen => screen.classList.remove("active"));
+  }
+
+
+  function showWelcome() {
+    hideAllScreens();
+    document.getElementById("welcomeScreen").classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+
+  function startTour() {
+    if (tourEntries.length === 0) return;
+
+    hideAllScreens();
+    document.getElementById("tourScreen").classList.add("active");
+    displayEntry();
+    window.scrollTo(0, 0);
+  }
+
+
+  function returnToTour() {
+    if (tourEntries.length === 0) {
+      showWelcome();
+      return;
+    }
+    startTour();
+  }
+
+
+  function displayEntry() {
+    const entry = tourEntries[currentIndex];
+    const savedData = getSavedData();
+    const record = savedData[entry.Entry] || {};
+
+    document.getElementById("tourLabel").textContent =
+      "Tour stop " + (currentIndex + 1) + " of " + tourEntries.length;
+
+    document.getElementById("progressBar").style.width =
+      (((currentIndex + 1) / tourEntries.length) * 100) + "%";
+
+    document.getElementById("entryBadge").textContent =
+      "Entry " + entry.Entry;
+
+    document.getElementById("lineName").textContent =
+      entry.Code || "Unnamed entry";
+
+    document.getElementById("coords").textContent =
+      "Range " + entry.Range + " • Pass " + entry.Pass;
+
+    const sectionChip = document.getElementById("sectionChip");
+
+    if (hasValue(entry.Section)) {
+      sectionChip.textContent = entry.Section;
+      sectionChip.style.display = "inline-block";
+    } else {
+      sectionChip.style.display = "none";
+    }
+
+    document.getElementById("infoCard").innerHTML =
+      buildEntryInfoHTML(entry);
+
+    document.getElementById("noteBox").value =
+      record.note || "";
+
+    updateFavoriteButton(Boolean(record.favorite));
+
+    document.getElementById("previousButton").disabled =
+      currentIndex === 0;
+
+    const nextButton = document.getElementById("nextButton");
+
+    if (currentIndex === tourEntries.length - 1) {
+      nextButton.textContent = "Finish Tour →";
+    } else {
+      nextButton.textContent = "Next Entry →";
+    }
+
+    document.getElementById("savedMessage").textContent = "";
+
+    updateMapHighlight();
+  }
+
+
+  function buildEntryInfoHTML(entry) {
+    const sections = [];
+
+    addInfoRow(sections, "Pedigree", entry.Pedigree);
+
+    const originParts = [];
+    if (hasValue(entry.Race)) originParts.push(entry.Race);
+    if (hasValue(entry.Country)) originParts.push(entry.Country);
+    if (originParts.length) {
+      addInfoRow(sections, "Race & Origin", originParts.join(" • "));
+    }
+
+    const releaseParts = [];
+    if (hasValue(entry["Site Release"])) releaseParts.push(entry["Site Release"]);
+    if (hasValue(entry["Year Release"])) releaseParts.push(formatNumber(entry["Year Release"]));
+    if (releaseParts.length) {
+      addInfoRow(sections, "Release", releaseParts.join(" • "));
+    }
+
+    const metrics = [
+      ["Shed GDD", entry["Shed GDD"]],
+      ["Shed DAP", entry["Shed DAP"]],
+      ["Silk GDD", entry["Silk GDD"]],
+      ["Silk DAP", entry["Silk DAP"]],
+      ["Plant Height", entry.PH],
+      ["Ear Height", entry.EH]
+    ].filter(([label, value]) => hasValue(value));
+
+    if (metrics.length) {
+      let metricHTML =
+        "<div class='info-row'><div class='label'>Agronomic Information</div>" +
+        "<div class='agronomic-grid'>";
+
+      metrics.forEach(([label, value]) => {
+        metricHTML +=
+          "<div class='metric'>" +
+          "<div class='metric-label'>" + escapeHTML(label) + "</div>" +
+          "<div class='metric-value'>" + escapeHTML(formatNumber(value)) + "</div>" +
+          "</div>";
+      });
+
+      metricHTML += "</div></div>";
+      sections.push(metricHTML);
+    }
+
+    if (sections.length === 0) {
+      return (
+        "<div class='value' style='color:#687068;'>" +
+        "Additional information for this entry will be added before the field day." +
+        "</div>"
+      );
+    }
+
+    return sections.join("");
+  }
+
+
+  function addInfoRow(array, label, value) {
+    if (!hasValue(value)) return;
+
+    array.push(
+      "<div class='info-row'>" +
+      "<div class='label'>" + escapeHTML(label) + "</div>" +
+      "<div class='value'>" + escapeHTML(formatNumber(value)) + "</div>" +
+      "</div>"
+    );
+  }
+
+
+  function hasValue(value) {
+    if (value === undefined || value === null) return false;
+    const text = String(value).trim();
+    return text !== "" && text.toLowerCase() !== "nan";
+  }
+
+
+  function formatNumber(value) {
+    const text = String(value ?? "").trim();
+
+    if (/^-?\d+\.0$/.test(text)) {
+      return text.slice(0, -2);
+    }
+
+    return text;
+  }
+
+
+  function getSavedData() {
+    try {
+      const saved = localStorage.getItem("gemFieldDayNotes2026");
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  }
+
+
+  function saveData(data) {
+    localStorage.setItem("gemFieldDayNotes2026", JSON.stringify(data));
+  }
+
+
+  function saveCurrentNote() {
+    const entry = tourEntries[currentIndex];
+    const savedData = getSavedData();
+
+    if (!savedData[entry.Entry]) savedData[entry.Entry] = {};
+
+    savedData[entry.Entry].note =
+      document.getElementById("noteBox").value;
+
+    saveData(savedData);
+
+    document.getElementById("savedMessage").textContent =
+      "Saved automatically";
+
+    updateMapHighlight();
+  }
+
+
+  function toggleFavorite() {
+    const entry = tourEntries[currentIndex];
+    const savedData = getSavedData();
+
+    if (!savedData[entry.Entry]) savedData[entry.Entry] = {};
+
+    savedData[entry.Entry].favorite =
+      !savedData[entry.Entry].favorite;
+
+    saveData(savedData);
+
+    updateFavoriteButton(Boolean(savedData[entry.Entry].favorite));
+    updateMapHighlight();
+  }
+
+
+  function updateFavoriteButton(isFavorite) {
+    const button = document.getElementById("favoriteButton");
+
+    if (isFavorite) {
+      button.textContent = "★ Saved as Favorite";
+      button.classList.add("selected");
+    } else {
+      button.textContent = "☆ Save as Favorite";
+      button.classList.remove("selected");
+    }
+  }
+
+
+  function previousStop() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      displayEntry();
+      window.scrollTo(0, 0);
+    }
+  }
+
+
+  function nextStop() {
+    if (currentIndex >= tourEntries.length - 1) {
+      showFinish();
+      return;
+    }
+
+    const current = tourEntries[currentIndex];
+    const next = tourEntries[currentIndex + 1];
+
+    if (Number(current.Range) !== Number(next.Range)) {
+      pendingTransitionIndex = currentIndex + 1;
+      showRangeTransition(current, next);
+      return;
+    }
+
+    currentIndex++;
+    displayEntry();
+    window.scrollTo(0, 0);
+  }
+
+
+  function showRangeTransition(current, next) {
+    hideAllScreens();
+    document.getElementById("transitionScreen").classList.add("active");
+
+    document.getElementById("transitionTitle").textContent =
+      "You've finished Range " + current.Range + ".";
+
+    let instruction = "";
+
+    if (Number(current.Range) === 2 && Number(next.Range) === 4) {
+      instruction =
+        "Cross the walkway to Range 4. Start at Pass " + next.Pass +
+        " and continue in the opposite direction.";
+    } else if (Number(current.Range) === 4 && Number(next.Range) === 5) {
+      instruction =
+        "Move into Range 5 at Pass " + next.Pass +
+        ". Continue in the opposite direction.";
+    } else if (Number(current.Range) === 5 && Number(next.Range) === 7) {
+      instruction =
+        "Cross the walkway to Range 7. Start at Pass " + next.Pass +
+        " and continue in the opposite direction.";
+    } else {
+      instruction =
+        "Continue to Range " + next.Range + ", Pass " + next.Pass + ".";
+    }
+
+    document.getElementById("transitionText").innerHTML =
+      escapeHTML(instruction) +
+      "<br><br><b>Next sign:</b> Entry " +
+      escapeHTML(next.Entry) +
+      " — " +
+      escapeHTML(next.Code);
+
+    window.scrollTo(0, 0);
+  }
+
+
+  function continueAfterTransition() {
+    if (pendingTransitionIndex === null) return;
+
+    currentIndex = pendingTransitionIndex;
+    pendingTransitionIndex = null;
+    startTour();
+  }
+
+
+  function returnToPreviousEntry() {
+    pendingTransitionIndex = null;
+    startTour();
+  }
+
+
+  function showFinish() {
+    hideAllScreens();
+    document.getElementById("finishScreen").classList.add("active");
+    buildFinishSummary();
+    window.scrollTo(0, 0);
+  }
+
+  function buildFinishSummary() {
+    const savedData = getSavedData();
+    const favorites = entries.filter(e => savedData[e.Entry]?.favorite).length;
+    const notes = entries.filter(e => (savedData[e.Entry]?.note || "").trim() !== "").length;
+    const saved = getSavedEntries().length;
+    document.getElementById("finishSummary").innerHTML =
+      `<div class="summary-card"><div class="summary-number">${tourEntries.length}</div><div class="summary-label">Tour entries</div></div>` +
+      `<div class="summary-card"><div class="summary-number">${favorites}</div><div class="summary-label">Favorites</div></div>` +
+      `<div class="summary-card"><div class="summary-number">${notes}</div><div class="summary-label">Entries with notes</div></div>` +
+      `<div class="summary-card"><div class="summary-number">${saved}</div><div class="summary-label">Saved entries</div></div>`;
+  }
+
+
+  function returnToLastEntry() {
+    currentIndex = tourEntries.length - 1;
+    startTour();
+  }
+
+
+  function generalQuestion() {
+    const subject = "GEM Ames Field Day 2026 — General Question";
+
+    const body =
+      "Hello,\n\n" +
+      "I have a general question about the GEM Ames Field Day 2026:\n\n";
+
+    window.location.href =
+      "mailto:" +
+      ORGANIZER_EMAIL +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+  }
+
+
+  function askQuestion() {
+    askQuestionForEntry(tourEntries[currentIndex]);
+  }
+
+
+  function askQuestionForEntry(entry) {
+    const subject =
+      "Field Day Question — " + entry.Code;
+
+    const body =
+      "I have a question about the following field day entry:\n\n" +
+      "Entry: " + entry.Entry + "\n" +
+      "Line: " + entry.Code + "\n" +
+      "Range: " + entry.Range + "\n" +
+      "Pass: " + entry.Pass + "\n" +
+      (hasValue(entry.Section) ? "Section: " + entry.Section + "\n" : "") +
+      (hasValue(entry.Pedigree) ? "Pedigree: " + entry.Pedigree + "\n" : "") +
+      "\nMy question:\n";
+
+    window.location.href =
+      "mailto:" +
+      ORGANIZER_EMAIL +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(body);
+  }
+
+
+  function showNotes() {
+    hideAllScreens();
+    document.getElementById("notesScreen").classList.add("active");
+    buildNotesList();
+    window.scrollTo(0, 0);
+  }
+
+
+  function buildNotesList() {
+    const savedData = getSavedData();
+    const container = document.getElementById("notesList");
+    container.innerHTML = "";
+
+    let savedEntries = getSavedEntries();
+    if (notesFilter === "favorites") savedEntries = savedEntries.filter(e => savedData[e.Entry]?.favorite);
+    if (notesFilter === "notes") savedEntries = savedEntries.filter(e => (savedData[e.Entry]?.note || "").trim() !== "");
+
+    if (savedEntries.length === 0) {
+      container.innerHTML =
+        "<div class='empty-notes'>" +
+        "You haven't saved any notes or favorites yet.<br><br>" +
+        "Start the field tour and your entries will appear here." +
+        "</div>";
+      return;
+    }
+
+    savedEntries.forEach(entry => {
+      const record = savedData[entry.Entry] || {};
+      const box = document.createElement("div");
+      box.className = "notes-entry";
+
+      box.innerHTML =
+        "<h3>" +
+        (record.favorite ? "★ " : "") +
+        escapeHTML(entry.Code) +
+        "</h3>" +
+        "<div class='small'>" +
+        "Entry " + escapeHTML(entry.Entry) +
+        " • Range " + escapeHTML(entry.Range) +
+        " • Pass " + escapeHTML(entry.Pass) +
+        "</div>" +
+        "<div class='note-text'>" +
+        escapeHTML(
+          record.note && record.note.trim() !== ""
+            ? record.note
+            : "No written notes."
+        ) +
+        "</div>";
+
+      const questionButton = document.createElement("button");
+      questionButton.textContent = "✉ Ask a Question About This Entry";
+      questionButton.onclick = () => askQuestionForEntry(entry);
+
+      box.appendChild(questionButton);
+      container.appendChild(box);
+    });
+  }
+
+
+  function setNotesFilter(filter) {
+    notesFilter = filter;
+    document.getElementById("filterAll").classList.toggle("active", filter === "all");
+    document.getElementById("filterFavorites").classList.toggle("active", filter === "favorites");
+    document.getElementById("filterNotes").classList.toggle("active", filter === "notes");
+    buildNotesList();
+  }
+
+
+  function getSavedEntries() {
+    const savedData = getSavedData();
+
+    return entries
+      .filter(entry => {
+        const record = savedData[entry.Entry];
+
+        return (
+          record &&
+          (
+            record.favorite ||
+            (record.note && record.note.trim() !== "")
+          )
+        );
+      })
+      .sort((a, b) => Number(a.Entry) - Number(b.Entry));
+  }
+
+
+  function csvSafe(value) {
+    const text = String(value ?? "");
+    return '"' + text.replace(/"/g, '""') + '"';
+  }
+
+
+  function downloadCSV() {
+    const savedData = getSavedData();
+    const savedEntries = getSavedEntries();
+
+    if (savedEntries.length === 0) {
+      alert("You do not have any saved notes or favorites yet.");
+      return;
+    }
+
+    const rows = [[
+      "Entry",
+      "Range",
+      "Pass",
+      "Line",
+      "Section",
+      "Pedigree",
+      "Race",
+      "Country",
+      "Site Release",
+      "Year Release",
+      "Favorite",
+      "Notes"
+    ]];
+
+    savedEntries.forEach(entry => {
+      const record = savedData[entry.Entry] || {};
+
+      rows.push([
+        entry.Entry,
+        entry.Range,
+        entry.Pass,
+        entry.Code,
+        entry.Section,
+        entry.Pedigree,
+        entry.Race,
+        entry.Country,
+        entry["Site Release"],
+        formatNumber(entry["Year Release"]),
+        record.favorite ? "Yes" : "No",
+        record.note || ""
+      ]);
+    });
+
+    const csv = rows
+      .map(row => row.map(csvSafe).join(","))
+      .join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "GEM_Ames_Field_Day_2026_Notes.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  }
+
+
+  function emailNotes() {
+    const savedData = getSavedData();
+    const savedEntries = getSavedEntries();
+
+    if (savedEntries.length === 0) {
+      alert("You do not have any saved notes or favorites yet.");
+      return;
+    }
+
+    let body = "My GEM Ames Field Day 2026 Notes\n\n";
+
+    savedEntries.forEach(entry => {
+      const record = savedData[entry.Entry] || {};
+
+      body +=
+        "----------------------------------------\n" +
+        "Entry: " + entry.Entry + "\n" +
+        "Line: " + entry.Code + "\n" +
+        "Range: " + entry.Range + "\n" +
+        "Pass: " + entry.Pass + "\n" +
+        (hasValue(entry.Section) ? "Section: " + entry.Section + "\n" : "") +
+        (hasValue(entry.Pedigree) ? "Pedigree: " + entry.Pedigree + "\n" : "") +
+        "Favorite: " + (record.favorite ? "Yes" : "No") + "\n" +
+        "Notes: " + (record.note || "None") + "\n\n";
+    });
+
+    window.location.href =
+      "mailto:?subject=" +
+      encodeURIComponent("My GEM Ames Field Day 2026 Notes") +
+      "&body=" +
+      encodeURIComponent(body);
+  }
+
+
+  function buildFieldMap() {
+    const container = document.getElementById("fieldMap");
+    container.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.className = "map-pass-header";
+
+    const corner = document.createElement("div");
+    corner.textContent = "Pass →";
+    header.appendChild(corner);
+
+    for (let pass = 1; pass <= 28; pass++) {
+      const cell = document.createElement("div");
+      cell.textContent = pass;
+      header.appendChild(cell);
+    }
+
+    container.appendChild(header);
+
+    addMapRange(container, 7);
+    addWalkway(container, "Walkway");
+    addMapRange(container, 5);
+    addMapRange(container, 4);
+    addWalkway(container, "Walkway");
+    addMapRange(container, 2);
+
+    updateMapHighlight();
+  }
+
+
+  function addMapRange(container, range) {
+    const row = document.createElement("div");
+    row.className = "map-row";
+
+    const label = document.createElement("div");
+    label.className = "map-label";
+    label.textContent = "Range " + range;
+    row.appendChild(label);
+
+    for (let pass = 1; pass <= 28; pass++) {
+      const entry = entries.find(
+        e => Number(e.Range) === range && Number(e.Pass) === pass
+      );
+
+      const cell = document.createElement("div");
+      cell.className = "map-cell";
+
+      if (entry) {
+        cell.textContent = entry.Entry;
+        cell.dataset.entry = entry.Entry;
+        cell.title =
+          "Entry " + entry.Entry + ": " + entry.Code +
+          " — Range " + range + ", Pass " + pass;
+
+        cell.onclick = () => jumpToEntry(entry.Entry);
+      }
+
+      row.appendChild(cell);
+    }
+
+    container.appendChild(row);
+  }
+
+
+  function addWalkway(container, labelText) {
+    const row = document.createElement("div");
+    row.className = "walkway-row";
+
+    const label = document.createElement("div");
+    label.className = "map-label";
+    label.textContent = "";
+
+    const walkway = document.createElement("div");
+    walkway.className = "walkway";
+    walkway.textContent = labelText;
+
+    row.appendChild(label);
+    row.appendChild(walkway);
+    container.appendChild(row);
+  }
+
+
+  function showMap() {
+    if (entries.length === 0) return;
+
+    hideAllScreens();
+    document.getElementById("mapScreen").classList.add("active");
+    updateMapHighlight();
+    window.scrollTo(0, 0);
+  }
+
+
+  function jumpToEntry(entryNumber) {
+    const index = tourEntries.findIndex(
+      e => String(e.Entry) === String(entryNumber)
+    );
+
+    if (index === -1) return;
+
+    currentIndex = index;
+    startTour();
+  }
+
+
+  function updateMapHighlight() {
+    if (!document.getElementById("fieldMap")) return;
+
+    const savedData = getSavedData();
+
+    document.querySelectorAll(".map-cell[data-entry]")
+      .forEach(cell => {
+        cell.classList.remove("current", "saved", "favorite", "noted");
+
+        const entryNumber = cell.dataset.entry;
+        const record = savedData[entryNumber];
+        if (record?.favorite) cell.classList.add("favorite");
+        if ((record?.note || "").trim() !== "") cell.classList.add("noted");
+      });
+
+    if (tourEntries.length > 0) {
+      const current = tourEntries[currentIndex];
+      const currentCell =
+        document.querySelector(
+          ".map-cell[data-entry='" + CSS.escape(String(current.Entry)) + "']"
+        );
+
+      if (currentCell) {
+        currentCell.classList.add("current");
+      }
+    }
+  }
+
+
+  function searchEntries(inputId, resultsId, jumpFirst = false) {
+    const input = document.getElementById(inputId);
+    const results = document.getElementById(resultsId);
+    const q = (input?.value || "").trim().toLowerCase();
+    if (!q) { results.innerHTML = ""; return; }
+
+    const matches = entries.filter(e =>
+      String(e.Entry).toLowerCase() === q ||
+      String(e.Code || "").toLowerCase().includes(q) ||
+      String(e.Pedigree || "").toLowerCase().includes(q)
+    ).slice(0, 8);
+
+    if (jumpFirst && matches.length === 1) { jumpToEntry(matches[0].Entry); return; }
+    if (!matches.length) {
+      results.innerHTML = `<div style="font-size:13px;color:#687068;padding:8px 2px;">No matching entry found.</div>`;
+      return;
+    }
+    results.innerHTML = matches.map(e =>
+      `<button class="search-result" onclick="jumpToEntry('${String(e.Entry).replace(/'/g,"\\'")}')">Entry ${escapeHTML(e.Entry)} — ${escapeHTML(e.Code || "Unnamed entry")}<br><span style="font-weight:400;color:#687068;font-size:12px;">Range ${escapeHTML(e.Range)} • Pass ${escapeHTML(e.Pass)}</span></button>`
+    ).join("");
+  }
+
+
+  function escapeHTML(text) {
+    const div = document.createElement("div");
+    div.textContent = String(text ?? "");
+    return div.innerHTML;
+  }
+</script>
+
+</body>
+</html>
