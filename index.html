@@ -58,13 +58,16 @@
       padding: 18px 0 10px;
     }
 
-    .welcome-box h2 {
+    .welcome-box h2,
+    .notes-title,
+    .finish-box h2 {
       font-size: 28px;
       margin-top: 0;
       color: #234f32;
     }
 
-    .welcome-box p {
+    .welcome-box p,
+    .finish-box p {
       font-size: 17px;
       line-height: 1.6;
     }
@@ -89,6 +92,12 @@
     .secondary {
       background: #e8ece7;
       color: #234f32;
+    }
+
+    .outline {
+      background: white;
+      color: #234f32;
+      border: 1px solid #b9c4b8;
     }
 
     .plot-counter {
@@ -166,12 +175,25 @@
       width: 100%;
       font-size: 17px;
       cursor: pointer;
-      margin-bottom: 18px;
+      margin-bottom: 12px;
     }
 
     .favorite-button.selected {
       border-color: #b48b21;
       background: #fff8df;
+    }
+
+    .question-button {
+      background: white;
+      border: 1px solid #b9c4b8;
+      border-radius: 10px;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      color: #234f32;
+      font-weight: bold;
     }
 
     textarea {
@@ -218,8 +240,7 @@
       color: white;
     }
 
-    .nav-prev:disabled,
-    .nav-next:disabled {
+    .nav-prev:disabled {
       opacity: 0.35;
       cursor: default;
     }
@@ -238,6 +259,21 @@
       padding: 10px;
       font-weight: bold;
       color: #234f32;
+      cursor: pointer;
+    }
+
+    .export-box {
+      background: #eef3ea;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0 24px;
+    }
+
+    .export-box p {
+      margin-top: 0;
+      line-height: 1.45;
+      color: #4b574d;
+      font-size: 14px;
     }
 
     .notes-entry {
@@ -264,11 +300,27 @@
       white-space: pre-wrap;
     }
 
+    .notes-entry button {
+      margin-top: 12px;
+      background: white;
+      border: 1px solid #c8d0c7;
+      border-radius: 8px;
+      padding: 9px 11px;
+      color: #234f32;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
     .empty-notes {
       padding: 30px 10px;
       text-align: center;
       color: #666;
       line-height: 1.5;
+    }
+
+    .finish-box {
+      text-align: center;
+      padding: 28px 0 10px;
     }
 
     footer {
@@ -301,9 +353,7 @@
 
   <main>
 
-    <!-- WELCOME SCREEN -->
     <section id="welcomeScreen" class="screen active">
-
       <div class="welcome-box">
         <h2>Welcome to the field.</h2>
 
@@ -326,11 +376,9 @@
           View My Notes
         </button>
       </div>
-
     </section>
 
 
-    <!-- TOUR SCREEN -->
     <section id="tourScreen" class="screen">
 
       <div class="top-links">
@@ -374,13 +422,18 @@
         ☆ Save as Favorite
       </button>
 
+      <button
+        class="question-button"
+        onclick="askQuestion()">
+        ✉ Ask a Question About This Line
+      </button>
+
       <div class="label">My Notes</div>
 
       <textarea
         id="noteBox"
         placeholder="Record your observations about this line..."
-        oninput="saveCurrentNote()">
-      </textarea>
+        oninput="saveCurrentNote()"></textarea>
 
       <div id="savedMessage" class="saved-message"></div>
 
@@ -405,7 +458,28 @@
     </section>
 
 
-    <!-- MY NOTES SCREEN -->
+    <section id="finishScreen" class="screen">
+
+      <div class="finish-box">
+        <h2>You've reached the end of the field tour.</h2>
+
+        <p>
+          Review your saved lines and field notes before you leave.
+          You can download a copy or email a summary to yourself.
+        </p>
+
+        <button class="button primary" onclick="showNotes()">
+          View My Field Notes
+        </button>
+
+        <button class="button secondary" onclick="returnToLastPlot()">
+          ← Return to Last Plot
+        </button>
+      </div>
+
+    </section>
+
+
     <section id="notesScreen" class="screen">
 
       <div class="top-links">
@@ -413,11 +487,24 @@
         <button onclick="returnToTour()">Return to Tour</button>
       </div>
 
-      <h2>My Field Notes</h2>
+      <h2 class="notes-title">My Field Notes</h2>
 
-      <p>
-        Entries appear here when you write a note or mark a line as a favorite.
-      </p>
+      <div class="export-box">
+
+        <p>
+          Your notes are stored only on this device.
+          Download or email a copy if you'd like to keep them after the field day.
+        </p>
+
+        <button class="button primary" onclick="downloadCSV()">
+          Download My Notes (.csv)
+        </button>
+
+        <button class="button outline" onclick="emailNotes()">
+          Email My Notes
+        </button>
+
+      </div>
 
       <div id="notesList"></div>
 
@@ -434,13 +521,8 @@
 
 <script>
 
-  /*
-    ============================================================
-    PILOT DATA
-    These five entries are only examples.
-    We will replace them with the real field-day entry list later.
-    ============================================================
-  */
+  const ORGANIZER_EMAIL = "kiarak@iastate.edu";
+
 
   const entries = [
 
@@ -501,71 +583,49 @@
 
 
   function getSavedData() {
-
     const saved = localStorage.getItem("gemFieldDayNotes");
-
-    if (saved) {
-      return JSON.parse(saved);
-    }
-
-    return {};
-
+    return saved ? JSON.parse(saved) : {};
   }
 
 
   function saveData(data) {
-
     localStorage.setItem(
       "gemFieldDayNotes",
       JSON.stringify(data)
     );
-
   }
 
 
   function hideAllScreens() {
-
     document
       .querySelectorAll(".screen")
-      .forEach(screen =>
-        screen.classList.remove("active")
-      );
-
+      .forEach(screen => screen.classList.remove("active"));
   }
 
 
   function showWelcome() {
-
     hideAllScreens();
-
-    document
-      .getElementById("welcomeScreen")
-      .classList.add("active");
-
+    document.getElementById("welcomeScreen").classList.add("active");
     window.scrollTo(0, 0);
-
   }
 
 
   function startTour() {
-
     hideAllScreens();
-
-    document
-      .getElementById("tourScreen")
-      .classList.add("active");
-
+    document.getElementById("tourScreen").classList.add("active");
     displayEntry();
-
     window.scrollTo(0, 0);
-
   }
 
 
   function returnToTour() {
-
     startTour();
+  }
 
+
+  function returnToLastPlot() {
+    currentIndex = entries.length - 1;
+    startTour();
   }
 
 
@@ -576,8 +636,7 @@
     const record = savedData[entry.plot] || {};
 
     document.getElementById("plotCounter").textContent =
-      "Plot " + (currentIndex + 1) +
-      " of " + entries.length;
+      "Plot " + (currentIndex + 1) + " of " + entries.length;
 
     document.getElementById("progressBar").style.width =
       (((currentIndex + 1) / entries.length) * 100) + "%";
@@ -608,11 +667,15 @@
     document.getElementById("previousButton").disabled =
       currentIndex === 0;
 
-    document.getElementById("nextButton").disabled =
-      currentIndex === entries.length - 1;
+    const nextButton = document.getElementById("nextButton");
+
+    if (currentIndex === entries.length - 1) {
+      nextButton.textContent = "Finish Tour →";
+    } else {
+      nextButton.textContent = "Next Plot →";
+    }
 
     document.getElementById("savedMessage").textContent = "";
-
   }
 
 
@@ -632,7 +695,6 @@
 
     document.getElementById("savedMessage").textContent =
       "Saved automatically";
-
   }
 
 
@@ -653,7 +715,6 @@
     updateFavoriteButton(
       savedData[entry.plot].favorite
     );
-
   }
 
 
@@ -663,51 +724,73 @@
       document.getElementById("favoriteButton");
 
     if (isFavorite) {
-
-      button.textContent =
-        "★ Saved as Favorite";
-
+      button.textContent = "★ Saved as Favorite";
       button.classList.add("selected");
-
     } else {
-
-      button.textContent =
-        "☆ Save as Favorite";
-
+      button.textContent = "☆ Save as Favorite";
       button.classList.remove("selected");
-
     }
-
   }
 
 
   function previousPlot() {
 
     if (currentIndex > 0) {
-
       currentIndex--;
-
       displayEntry();
-
       window.scrollTo(0, 0);
-
     }
-
   }
 
 
   function nextPlot() {
 
     if (currentIndex < entries.length - 1) {
-
       currentIndex++;
-
       displayEntry();
-
       window.scrollTo(0, 0);
-
+    } else {
+      showFinish();
     }
+  }
 
+
+  function showFinish() {
+
+    hideAllScreens();
+    document.getElementById("finishScreen").classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+
+  function askQuestionForEntry(entry) {
+
+    const subject =
+      "Field Day Question — " + entry.name;
+
+    const body =
+      "I have a question about the following field day entry:\n\n" +
+      "Line: " + entry.name + "\n" +
+      "Plot: " + entry.plot + "\n" +
+      "Field position: Row " +
+      entry.fieldRow +
+      ", Column " +
+      entry.fieldColumn + "\n" +
+      "Pedigree: " + entry.pedigree + "\n\n" +
+      "My question:\n";
+
+    window.location.href =
+      "mailto:" +
+      ORGANIZER_EMAIL +
+      "?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body);
+  }
+
+
+  function askQuestion() {
+    askQuestionForEntry(entries[currentIndex]);
   }
 
 
@@ -722,7 +805,6 @@
     buildNotesList();
 
     window.scrollTo(0, 0);
-
   }
 
 
@@ -736,17 +818,15 @@
 
     let found = false;
 
-    entries.forEach(entry => {
+    entries.forEach((entry, index) => {
 
-      const record =
-        savedData[entry.plot];
+      const record = savedData[entry.plot];
 
       if (
         record &&
         (
           record.favorite ||
-          (record.note &&
-           record.note.trim() !== "")
+          (record.note && record.note.trim() !== "")
         )
       ) {
 
@@ -761,15 +841,14 @@
           record.favorite ? "★ " : "";
 
         const noteText =
-          record.note &&
-          record.note.trim() !== ""
+          record.note && record.note.trim() !== ""
           ? record.note
           : "No written notes.";
 
         box.innerHTML =
           "<h3>" +
           favoriteMark +
-          entry.name +
+          escapeHTML(entry.name) +
           "</h3>" +
 
           "<div class='small'>" +
@@ -785,10 +864,20 @@
           escapeHTML(noteText) +
           "</div>";
 
+        const questionButton =
+          document.createElement("button");
+
+        questionButton.textContent =
+          "✉ Ask a Question About This Line";
+
+        questionButton.onclick = function() {
+          askQuestionForEntry(entry);
+        };
+
+        box.appendChild(questionButton);
+
         container.appendChild(box);
-
       }
-
     });
 
 
@@ -799,9 +888,155 @@
         "You haven't saved any notes or favorites yet.<br><br>" +
         "Start the field tour and your entries will appear here." +
         "</div>";
+    }
+  }
 
+
+  function getSavedEntries() {
+
+    const savedData = getSavedData();
+
+    return entries.filter(entry => {
+
+      const record = savedData[entry.plot];
+
+      return (
+        record &&
+        (
+          record.favorite ||
+          (record.note && record.note.trim() !== "")
+        )
+      );
+    });
+  }
+
+
+  function csvSafe(value) {
+
+    const text = String(value ?? "");
+
+    return '"' +
+      text.replace(/"/g, '""') +
+      '"';
+  }
+
+
+  function downloadCSV() {
+
+    const savedData = getSavedData();
+    const savedEntries = getSavedEntries();
+
+    if (savedEntries.length === 0) {
+      alert("You do not have any saved notes or favorites yet.");
+      return;
     }
 
+    const rows = [];
+
+    rows.push([
+      "Plot",
+      "Field Row",
+      "Field Column",
+      "Line",
+      "Pedigree",
+      "Release Year",
+      "Favorite",
+      "Notes"
+    ]);
+
+    savedEntries.forEach(entry => {
+
+      const record =
+        savedData[entry.plot] || {};
+
+      rows.push([
+        entry.plot,
+        entry.fieldRow,
+        entry.fieldColumn,
+        entry.name,
+        entry.pedigree,
+        entry.releaseYear,
+        record.favorite ? "Yes" : "No",
+        record.note || ""
+      ]);
+    });
+
+    const csv =
+      rows
+        .map(row => row.map(csvSafe).join(","))
+        .join("\n");
+
+    const blob =
+      new Blob(
+        [csv],
+        { type: "text/csv;charset=utf-8;" }
+      );
+
+    const url =
+      URL.createObjectURL(blob);
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+    link.download =
+      "GEM_Ames_Field_Day_2026_Notes.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  }
+
+
+  function emailNotes() {
+
+    const savedData = getSavedData();
+    const savedEntries = getSavedEntries();
+
+    if (savedEntries.length === 0) {
+      alert("You do not have any saved notes or favorites yet.");
+      return;
+    }
+
+    let body =
+      "My GEM Ames Field Day 2026 Notes\n\n";
+
+    savedEntries.forEach(entry => {
+
+      const record =
+        savedData[entry.plot] || {};
+
+      body +=
+        "----------------------------------------\n" +
+        "Line: " + entry.name + "\n" +
+        "Plot: " + entry.plot + "\n" +
+        "Field position: Row " +
+        entry.fieldRow +
+        ", Column " +
+        entry.fieldColumn + "\n" +
+        "Pedigree: " + entry.pedigree + "\n" +
+        "Release year: " + entry.releaseYear + "\n" +
+        "Favorite: " +
+        (record.favorite ? "Yes" : "No") +
+        "\n" +
+        "Notes: " +
+        (record.note || "None") +
+        "\n\n";
+    });
+
+    const subject =
+      "My GEM Ames Field Day 2026 Notes";
+
+    window.location.href =
+      "mailto:" +
+      "?subject=" +
+      encodeURIComponent(subject) +
+      "&body=" +
+      encodeURIComponent(body);
   }
 
 
@@ -813,7 +1048,6 @@
     div.textContent = text;
 
     return div.innerHTML;
-
   }
 
 </script>
